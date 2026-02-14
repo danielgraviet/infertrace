@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package ml_service;
+
+// The request message containing the raw image bytes
+message ClassifyRequest {
+  bytes image_data = 1;
+  string model_version = 2;
+}
+
+// The response message containing the prediction results
+message ClassifyResponse {
+  string label = 1;
+  float confidence = 2;
+}
+
+// The service definition
+service ImageClassifier {
+  // A simple Unary RPC: One request, one response
+  rpc Predict(ClassifyRequest) returns (ClassifyResponse);
+}
