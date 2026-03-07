@@ -17,12 +17,16 @@ func ParseTraceID(raw string) (string, error) {
 
 // create a new struct mock object
 // pass in the trace ID to my function
-// make sure it is robust. 
+// make sure it is robust.
 
 func main() {
-	span := collector.NewSpan("auth-service", "validate-token")
+	span, err := collector.NewSpan("auth-service", "validate-token", "gpt-4o-mini")
+	if err != nil {
+		fmt.Println("error creating span:", err)
+		return
+	}
 
-	traceID, err := ParseTraceID("abc-123") // important to understand what the function purpose is. I thought we were parsing an existing one and validating. 
+	traceID, err := ParseTraceID("abc-123") // important to understand what the function purpose is. I thought we were parsing an existing one and validating.
 	if err != nil {
 		fmt.Println("error: ", err)
 		return
