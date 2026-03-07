@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import image_service_pb2 as image__service__pb2
+from infertrace._proto import span_pb2 as span__pb2
 
 GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
@@ -18,16 +18,15 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in image_service_pb2_grpc.py depends on'
+        + ' but the generated code in span_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class ImageClassifierStub(object):
-    """The service definition
-    """
+class CollectorServiceStub(object):
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -35,46 +34,43 @@ class ImageClassifierStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Predict = channel.unary_unary(
-                '/ml_service.ImageClassifier/Predict',
-                request_serializer=image__service__pb2.ClassifyRequest.SerializeToString,
-                response_deserializer=image__service__pb2.ClassifyResponse.FromString,
+        self.SendSpanBatch = channel.unary_unary(
+                '/infertrace.v1.CollectorService/SendSpanBatch',
+                request_serializer=span__pb2.SendSpanBatchRequest.SerializeToString,
+                response_deserializer=span__pb2.SendSpanBatchResponse.FromString,
                 _registered_method=True)
 
 
-class ImageClassifierServicer(object):
-    """The service definition
-    """
+class CollectorServiceServicer(object):
+    """Missing associated documentation comment in .proto file."""
 
-    def Predict(self, request, context):
-        """A simple Unary RPC: One request, one response
-        """
+    def SendSpanBatch(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ImageClassifierServicer_to_server(servicer, server):
+def add_CollectorServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Predict': grpc.unary_unary_rpc_method_handler(
-                    servicer.Predict,
-                    request_deserializer=image__service__pb2.ClassifyRequest.FromString,
-                    response_serializer=image__service__pb2.ClassifyResponse.SerializeToString,
+            'SendSpanBatch': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendSpanBatch,
+                    request_deserializer=span__pb2.SendSpanBatchRequest.FromString,
+                    response_serializer=span__pb2.SendSpanBatchResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'ml_service.ImageClassifier', rpc_method_handlers)
+            'infertrace.v1.CollectorService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('ml_service.ImageClassifier', rpc_method_handlers)
+    server.add_registered_method_handlers('infertrace.v1.CollectorService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class ImageClassifier(object):
-    """The service definition
-    """
+class CollectorService(object):
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Predict(request,
+    def SendSpanBatch(request,
             target,
             options=(),
             channel_credentials=None,
@@ -87,9 +83,9 @@ class ImageClassifier(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/ml_service.ImageClassifier/Predict',
-            image__service__pb2.ClassifyRequest.SerializeToString,
-            image__service__pb2.ClassifyResponse.FromString,
+            '/infertrace.v1.CollectorService/SendSpanBatch',
+            span__pb2.SendSpanBatchRequest.SerializeToString,
+            span__pb2.SendSpanBatchResponse.FromString,
             options,
             channel_credentials,
             insecure,

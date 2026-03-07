@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	const grpcAddress = ":50051"
+	const grpcAddress = ":4317"
 	const httpAddress = ":8080"
 	const workerCount = 4
 	const queueSize = 1024
