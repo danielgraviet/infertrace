@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package infertrace.v1;
+
+option go_package = "github.com/danielgraviet/infertrace/proto;infertracepb";
+
+message Span {
+  string trace_id = 1;
+  string span_id = 2;
+  string service_name = 3;
+  string operation_name = 4;
+  string model_name = 5;
+  int64 start_time_unix_nano = 6;
+  int64 duration_nanos = 7;
+  string status = 8;
+}
+
+message SendSpanBatchRequest {
+  repeated Span spans = 1;
+}
+
+message SendSpanBatchResponse {
+  int32 accepted_count = 1;
+  int32 rejected_count = 2;
+}
+
+service CollectorService {
+  rpc SendSpanBatch(SendSpanBatchRequest) returns (SendSpanBatchResponse);
+}

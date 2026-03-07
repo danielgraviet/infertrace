@@ -1,37 +1,51 @@
 package main
 
 import (
-	"errors"
+	"context"
 	"fmt"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/danielgraviet/infertrace/internal/collector"
+	infertracepb "github.com/danielgraviet/infertrace/proto"
+	"google.golang.org/grpc"
 )
 
-func ParseTraceID(raw string) (string, error) {
-	if raw == "" {
-		return "", errors.New("Error parsing trace ID")
-	}
-
-	finalTraceID := raw
-	return finalTraceID, nil
-}
-
-// create a new struct mock object
-// pass in the trace ID to my function
-// make sure it is robust.
-
 func main() {
-	span, err := collector.NewSpan("auth-service", "validate-token", "gpt-4o-mini")
+	const address = ":50051"
+	const workerCount = 4
+	const queueSize = 1024
+
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
-		fmt.Println("error creating span:", err)
-		return
+		log.Fatalf("failed to listen on %s: %v", address, err)
 	}
 
-	traceID, err := ParseTraceID("abc-123") // important to understand what the function purpose is. I thought we were parsing an existing one and validating.
-	if err != nil {
-		fmt.Println("error: ", err)
-		return
-	}
+	pipeline := collector.NewCollector(workerCount, queueSize, nil)
+	grpcServer := grpc.NewServer()
+	infertracepb.RegisterCollectorServiceServer(grpcServer, collector.NewServer(pipeline))
 
-	span.TraceID = traceID
-	fmt.Println("Created span: ", span.SpanID, span.ServiceName)
+	fmt.Printf("collector listening on %s\n", address)
+
+	go func() {
+		if serveErr := grpcServer.Serve(lis); serveErr != nil {
+			log.Printf("gRPC server stopped with error: %v", serveErr)
+		}
+	}()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	<-sigCh
+
+	log.Println("shutdown signal received, stopping collector")
+	grpcServer.GracefulStop()
+	stopCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := pipeline.Stop(stopCtx); err != nil {
+		log.Printf("collector pipeline stop error: %v", err)
+	}
 }
